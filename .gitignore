@@ -1,0 +1,7 @@
+img/
+target/
+*.png
+*.jpg
+.idea/
+.ipynb_checkpoints/
+__pycache__/

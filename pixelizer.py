@@ -5,7 +5,7 @@ from PIL import Image
 from PIL import ImageFilter
 
 def get_hsv_pixel_vectors(image):
-    image = image.convert('RGB')
+    image = image.convert('HSV')
     h, s, v = image.split()
     h_values = np.matrix(h)
     size = h_values.size
@@ -25,15 +25,15 @@ def image_from_pixel_vectors(mode, pixel_vectors, image_dimensions):
 def pixelize(num_colors, input_file, output_file):
     # get the RGB color points of the pixels in the input_file
     img = Image.open(input_file)
-    img = img.resize((256,256))
     img.show('Original Image')
+    img = img.resize((256,256))
     pixel_vectors = get_hsv_pixel_vectors(img)
     # find primary colors
     pixel_HS_vectors = pixel_vectors[:2, :] # we only care about hue and saturation
     primary_colors = find_primary_colors(pixel_HS_vectors, num_colors)
     generate_palette_image(primary_colors).show('Image Palette')
     # Recolor the points based on closest primary color
-    recolored_pixel_vectors = recolor(pixel_vectors, primary_colors, 80)
+    recolored_pixel_vectors = recolor(pixel_vectors, primary_colors, 32)
     pixelized_image = image_from_pixel_vectors('HSV', recolored_pixel_vectors, img.size)
     pixelized_image.show('HSV pixelized image')
     # show edges
@@ -47,14 +47,11 @@ def recolor(pixel_vectors, primary_colors, step_size):
     # primary colors
     primary_color_vectors = np.hstack(primary_colors)
     # normalize the primary colors
-    # normalized_primary_colors = [color / np.linalg.norm(color) for color in primary_colors]
+    normalized_primary_colors = [color / np.linalg.norm(color) for color in primary_colors]
     # get pixel color bands
-    # pixel_HS_vectors = pixel_vectors[:2, :]
-    pixel_H_vectors  = pixel_vectors[0, :]
-    pixel_S_vectors  = pixel_vectors[1, :]
+    pixel_HS_vectors = pixel_vectors[:2, :]
     pixel_V_vectors  = pixel_vectors[2, :]
 
-    """
     # project each pixel's color onto the primary color directions
     projections = []
     for color in normalized_primary_colors:
@@ -67,38 +64,13 @@ def recolor(pixel_vectors, primary_colors, step_size):
     # index into primary_color_vectors to get recolored_
     recolored_HS_vectors = primary_color_vectors[:, recolor_colors]
     # multiply by maximum HSV value, round to nearest integer
-    """
-
-    # calculate hue-distance to primary colors
-    squared_distances = []
-    primary_hues = primary_color_vectors[0, :]
-    for hue in primary_hues.flat:
-        squared_distance = np.square(pixel_H_vectors - hue)
-        squared_distances.append(squared_distance)
-    squared_distances = np.vstack(squared_distances)
-    # get the closest primary color of each pixel
-    recolor_colors = np.argmin(squared_distances, axis=0)
-    # index into primary_color_vectors to get recolored_
-    recolored_H_vectors = primary_color_vectors[:, recolor_colors.flat]
-
-    # discretize the saturation with step_size
-    discretized_pixel_saturation = np.rint(pixel_S_vectors / step_size) * step_size
-    recolored_S_vectors = np.clip(discretized_pixel_saturation, 0, 256 - 1)
 
     # discretize the values with step_size
     discretized_pixel_values = np.rint(pixel_V_vectors / step_size) * step_size
     recolored_V_vectors = np.clip(discretized_pixel_values, 0, 256 - 1)
 
-    """
-    # get the discrete (e.g. multiples of step-size) magnitude of colors
-    recolor_magnitudes = np.amax(projections, axis=0)
-    recolor_magnitudes = step_size * np.floor(recolor_magnitudes / step_size)
-    print(recolor_magnitudes.shape)
-    """
-
     # Recombine HS and V to get recolored pixel vectors and output
-    recolored_pixel_vectors = np.vstack([recolored_H_vectors,
-                                         recolored_S_vectors,
+    recolored_pixel_vectors = np.vstack([recolored_HS_vectors,
                                          recolored_V_vectors]);
     return recolored_pixel_vectors
 

@@ -26,7 +26,7 @@ def pixelize(num_colors, input_file, output_file):
     # get the RGB color points of the pixels in the input_file
     img = Image.open(input_file)
     img.show('Original Image')
-    img = img.resize((256,256))
+    img = img.resize((512,256))
     pixel_vectors = get_hsv_pixel_vectors(img)
     # find primary colors
     pixel_HS_vectors = pixel_vectors[:2, :] # we only care about hue and saturation
@@ -35,10 +35,15 @@ def pixelize(num_colors, input_file, output_file):
     # Recolor the points based on closest primary color
     recolored_pixel_vectors = recolor(pixel_vectors, primary_colors, 32)
     pixelized_image = image_from_pixel_vectors('HSV', recolored_pixel_vectors, img.size)
-    pixelized_image.show('HSV pixelized image')
+    # pixelized_image.show('HSV pixelized image')
+    output_location = 'output/{:s}.png'.format(output_file)
+    output_image = pixelized_image.convert('RGB').resize((1024, 512), Image.NEAREST)
+    output_image.show('output')
+    output_image.save(output_location, 'PNG')
     # show edges
-    img_mod = img.filter(ImageFilter.FIND_EDGES)
-    #img_mod.show()
+    # img_mod = img.filter(ImageFilter.FIND_EDGES)
+    # img_mod.show()
+
 
 def find_primary_colors(color_points, num_colors):
     return k_means(num_colors, color_points)

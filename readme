@@ -1,0 +1,12 @@
+## Program Plan:
+
+### So heres the plan as I see it in high level steps. Let the original image be $A$
+	1. Isolate the color of light ($v_l$) and dark ($v_d$) of $A$ (e.g. what is 'white' and what is 'black').
+	2. Create image $B$ by ignoring light and dark source of $A$. (ignore the vector $v_b$ = $v_l$ - $v_d$)
+	3. Partition $B$ into sets of pixels $s_1 \ldots s_n$ by hue.
+	4. Let $h_i$ be the average hue of $s_i$
+	5. If $c_j$ is the $j$th pixel of the output and $c_j \in s_i$, then $c_j = h_i + k v_b$ where $k \in\Reals$
+
+Desired Feature set:
+	- GUI to select number of primary colors, change up primary colors before analysis, change the color of the primary colors after the analysis, and change the 'background color' (e.g. translate the origin of the RGB system in the output).
+	- Somehow put less 'weight' on pixels with low energy (so that a low gradient maps to the same category)

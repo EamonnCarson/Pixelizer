@@ -102,7 +102,7 @@ def generate_palette_image(primary_colors):
 def median_hue_categorization(image, num_categories):
     """
     Return a set of categories based on hue.
-    The set of categories will have cardinality less than num_hues.
+    The see of categories will have cardinality less than num_hues.
     Each category approximates a percentile range with width 100% / num_hues.
     :param image: PILLOW Image
         Source image to categorize.
